@@ -2,144 +2,160 @@
 #include <stdlib.h>
 #include <time.h>
 
+// Function prototypes
+void printPlayerStats(int healthPlayer, int damagePlayer, int defensePlayer);
+void printEnemyStats(int healthEnemy, int damageEnemy, int defenseEnemy);
+void fightEnemy(int *healthPlayer, int damagePlayer, int defensePlayer, int *healthEnemy, int damageEnemy, int defenseEnemy);
+void handleLoot(int *healthPlayer, int *damagePlayer, int *defensePlayer);
+
 int main()
 {
     srand(time(0));
-    // declaration
-    // player
-    char yesno;
+
+    // Player stats
     int healthPlayer = 100;
-    int healthPlayerMax = 200;
     int damagePlayer = 2;
     int defensePlayer = 0;
-    int scorePlayer = 0;
 
-    // Enemy defense
-    int defenseEnemy;
-    int minDefenseEnemy = 0;
-    int maxDefenseEnemy = 2;
-    // Enemy damage
-    int damageEnemy;
-    int minDamageEnemy = 1;
-    int maxDamageEnemy = 3;
-    // Enemy health
+    // Enemy stats
     int healthEnemy;
-    int minHealthEnemy = 5;
-    int maxHealthEnemy = 15;
+    int damageEnemy;
+    int defenseEnemy;
 
-    int difficultyScaling;
-
-    char enemyNames[10][25] = {
+    char enemyNames[5][25] = {
         "Wild Boar",
         "Rat",
         "Massive Turtle",
         "Turek the Deathbringer",
         "Hypnotic Frog"};
 
-    // Items
-    int item;
-    int itemValue;
+    char yesno;
 
-    ///////////
-    // START //
-    ///////////
-    printf("Start game?(y/n) ");
+    // Start game
+    printf("Start game? (y/n) ");
     scanf(" %c", &yesno);
 
     if (yesno == 'y')
     {
         while (healthPlayer > 0)
         {
+            // Print player stats
+            printPlayerStats(healthPlayer, damagePlayer, defensePlayer);
 
-            printf("Player stats: HP:%d DMG:%d DEF:%d\n", healthPlayer, damagePlayer, defensePlayer);
-            {
-                // Random enemy names and stats
-                printf("\n%s has appeared\n", enemyNames + rand() % 4 + 0);
-                healthEnemy = rand() % maxHealthEnemy + minHealthEnemy;
-                damageEnemy = rand() % maxDamageEnemy + minDamageEnemy;
-                defenseEnemy = rand() % maxDefenseEnemy + minDefenseEnemy;
-                printf("Enemy stats: HP:%d DMG:%d DEF:%d\n", healthEnemy, damageEnemy, defenseEnemy);
-            }
+            // Generate random enemy stats
+            int enemyIndex = rand() % 5;
+            printf("\n%s has appeared\n", enemyNames[enemyIndex]);
+            healthEnemy = rand() % 11 + 5;
+            damageEnemy = rand() % 3 + 1;
+            defenseEnemy = rand() % 3;
+            printEnemyStats(healthEnemy, damageEnemy, defenseEnemy);
 
             // Fight
-            printf("Fight?(y/n) ");
+            printf("Fight? (y/n) ");
             scanf(" %c", &yesno);
             if (yesno == 'y')
             {
-                while (healthEnemy > 0 && healthPlayer > 0)
-                {
-                    healthEnemy = healthEnemy - (damagePlayer - defenseEnemy);
-                    healthPlayer = healthPlayer - (damageEnemy - defensePlayer);
+                fightEnemy(&healthPlayer, damagePlayer, defensePlayer, &healthEnemy, damageEnemy, defenseEnemy);
 
-                    printf("Player stats: HP:%d DMG:%d DEF:%d\n", healthPlayer, damagePlayer, defensePlayer);
-                    printf("Enemy stats: HP:%d DMG:%d DEF:%d\n", healthEnemy, damageEnemy, defenseEnemy);
-                }
-                // Conclusion
-                if (healthPlayer > minHealthEnemy)
+                // Check if player won
+                if (healthPlayer > 0)
                 {
                     printf("\nYou beat the enemy\n");
-                    
-                    // Random Loot
-                    item = rand() % 2 + 0;
-                    if (item == 0)
-                    {
-                        itemValue = rand() % 10 + 3;
-                        printf("You found a new weapon DMG:%d\n", itemValue);
-                        printf("Equip?(y/n) ");
-                        scanf(" %c", &yesno);
-                        if (yesno == 'y')
-                        {
-                            damagePlayer = itemValue;
-                            printf("Player stats: HP:%d DMG:%d DEF:%d\n", healthPlayer, damagePlayer, defensePlayer);
-                        }
-                    }
-                    else if (item == 1)
-                    {
-                        itemValue = rand() % 25 + 15;
-                        printf("You found a Potion HP:%d\n", itemValue);
-                        printf("Use it?(y/n) ");
-                        scanf(" %c", &yesno);
-                        if (yesno == 'y')
-                        {
-                            healthPlayer += itemValue;
-                            printf("Player stats: HP:%d DMG:%d DEF:%d\n", healthPlayer, damagePlayer, defensePlayer);
-                        }
-                    }
-                    else
-                    {
-                        itemValue = rand() % 4 + 1;
-                        printf("You found New Armor DEF:%d\n", itemValue);
-                        printf("Equip?(y/n) ");
-                        scanf(" %c", &yesno);
-                        if (yesno == 'y')
-                        {
-                            defensePlayer = itemValue;
-                            printf("Player stats: HP:%d DMG:%d DEF:%d\n", healthPlayer, damagePlayer, defensePlayer);
-                        }
-                    }
+                    handleLoot(&healthPlayer, &damagePlayer, &defensePlayer);
                 }
                 else
                 {
                     printf("\nYou lost\n");
-                    printf("Play again?(y/n) ");
+                    printf("Play again? (y/n) ");
                     scanf(" %c", &yesno);
                     if (yesno == 'y')
                     {
-                        main();
+                        continue;
                     }
                     else
                     {
-                        exit(0);
+                        break;
                     }
                 }
             }
-            printf("Continue Journey?(y/n) ");
+
+            printf("Continue Journey? (y/n) ");
             scanf(" %c", &yesno);
             printf("\n");
             if (yesno == 'n')
             {
-                exit(0);
+                break;
             }
         }
     }
+
+    return 0;
 }
+
+void printPlayerStats(int healthPlayer, int damagePlayer, int defensePlayer)
+{
+    printf("Player stats: HP:%d DMG:%d DEF:%d\n", healthPlayer, damagePlayer, defensePlayer);
+}
+
+void printEnemyStats(int healthEnemy, int damageEnemy, int defenseEnemy)
+{
+    printf("Enemy stats: HP:%d DMG:%d DEF:%d\n", healthEnemy, damageEnemy, defenseEnemy);
+}
+
+void fightEnemy(int *healthPlayer, int damagePlayer, int defensePlayer, int *healthEnemy, int damageEnemy, int defenseEnemy)
+{
+    while (*healthEnemy > 0 && *healthPlayer > 0)
+    {
+        *healthEnemy -= damagePlayer - defenseEnemy;
+        *healthPlayer -= damageEnemy - defensePlayer;
+
+        printPlayerStats(*healthPlayer, damagePlayer, defensePlayer);
+        printEnemyStats(*healthEnemy, damageEnemy, defenseEnemy);
+    }
+}
+
+void handleLoot(int *healthPlayer, int *damagePlayer, int *defensePlayer)
+{
+    int item = rand() % 3;
+
+    if (item == 0)
+    {
+        int itemValue = rand() % 10 + 3;
+        printf("You found a new weapon DMG:%d\n", itemValue);
+        printf("Equip? (y/n) ");
+        char yesno;
+        scanf(" %c", &yesno);
+        if (yesno == 'y')
+        {
+            *damagePlayer = itemValue;
+            printPlayerStats(*healthPlayer, *damagePlayer, *defensePlayer);
+        }
+    }
+    else if (item == 1)
+    {
+        int itemValue = rand() % 25 + 15;
+        printf("You found a Potion HP:%d\n", itemValue);
+        printf("Use it? (y/n) ");
+        char yesno;
+        scanf(" %c", &yesno);
+        if (yesno == 'y')
+        {
+            *healthPlayer += itemValue;
+            printPlayerStats(*healthPlayer, *damagePlayer, *defensePlayer);
+        }
+    }
+    else
+    {
+        int itemValue = rand() % 4 + 1;
+        printf("You found New Armor DEF:%d\n", itemValue);
+        printf("Equip? (y/n) ");
+        char yesno;
+        scanf(" %c", &yesno);
+        if (yesno == 'y')
+        {
+            *defensePlayer = itemValue;
+            printPlayerStats(*healthPlayer, *damagePlayer, *defensePlayer);
+        }
+    }
+}
+
